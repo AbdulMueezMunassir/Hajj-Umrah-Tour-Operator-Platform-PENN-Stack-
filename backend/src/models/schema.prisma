@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  phone         String?
+  whatsapp      String?
+  address       String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+  payments      Payment[]
+  notifications Notification[]
+  profile       Profile?
+}
+
+model Profile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nic             String?
+  passportNumber  String?
+  passportExpiry  DateTime?
+  dateOfBirth     DateTime?
+  gender          String?
+  emergencyContact String?
+  emergencyPhone  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Package {
+  id                 String    @id @default(cuid())
+  name               String
+  type               PackageType
+  departureCity      String
+  travelDate         DateTime
+  returnDate         DateTime
+  duration           Int       // nights
+  totalPrice         Float
+  advancePercent     Int       @default(20)
+  availableSeats     Int
+  description        String
+  posterUrl          String?
+  status             PackageStatus @default(ACTIVE)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  bookings           Booking[]
+  hotels             Hotel[]
+  inclusions         Inclusion[]
+  itinerary          ItineraryItem[]
+}
+
+model Hotel {
+  id            String   @id @default(cuid())
+  packageId     String
+  package       Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  city          String   // MAKKAH or MADINAH
+  name          String
+  stars         Int
+  distance      String   // e.g. "100m to Haram"
+  roomType      String
+  nights        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Inclusion {
+  id          String   @id @default(cuid())
+  packageId   String
+  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  name        String
+  included    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ItineraryItem {
+  id          String   @id @default(cuid())
+  packageId   String
+  package     Package  @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  day         Int
+  date        DateTime?
+  location    String
+  title       String
+  description String
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Booking {
+  id              String       @id @default(cuid())
+  bookingRef      String       @unique
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId       String
+  package         Package      @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  travellers      Json         // array of traveller objects
+  totalAmount     Float
+  advancePaid     Float
+  balanceDue      Float
+  bookingStatus   BookingStatus @default(PENDING_PAYMENT)
+  paymentStatus   PaymentStatus @default(PENDING)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  payments        Payment[]
+  travellersData  Traveller[]
+}
+
+model Traveller {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fullName    String
+  passportNumber String
+  dateOfBirth DateTime
+  gender      String
+  relationship String?
+  nic         String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Payment {
+  id             String       @id @default(cuid())
+  bookingId      String
+  booking        Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount         Float
+  paymentType    PaymentType
+  gateway        String       @default("PayHere")
+  transactionId  String?
+  status         PaymentStatus
+  receiptUrl     String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  read        Boolean  @default(false)
+  type        String
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PackageType {
+  HAJJ
+  UMRAH
+}
+
+enum PackageStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  ADVANCE_PAID
+  CONFIRMED
+  DOCUMENTS_PENDING
+  DOCUMENTS_VERIFIED
+  TRAVEL_READY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentType {
+  ADVANCE
+  BALANCE
+}
