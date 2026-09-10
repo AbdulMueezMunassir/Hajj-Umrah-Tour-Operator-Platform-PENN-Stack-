@@ -1,25 +1,59 @@
 import { Request, Response, NextFunction } from 'express';
-import { verifyToken } from '../config/jwt';
+import { verifyToken, JwtPayload } from '../config/jwt';
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-  const token = authHeader.split(' ')[1];
+// Extend Express Request type
+export interface AuthRequest extends Request {
+  user?: JwtPayload;
+}
+
+export const authMiddleware = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      res.status(401).json({
+        success: false,
+        message: 'Access denied. No token provided.',
+      });
+      return;
+    }
+
+    const token = authHeader.split(' ')[1];
     const decoded = verifyToken(token);
-    (req as any).user = decoded;
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({
+      success: false,
+      message: 'Invalid or expired token.',
+    });
   }
 };
 
-export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const user = (req as any).user;
-  if (!user || user.role !== 'ADMIN') {
-    return res.status(403).json({ message: 'Admin access required' });
+export const adminMiddleware = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.user) {
+    res.status(401).json({
+      success: false,
+      message: 'Authentication required.',
+    });
+    return;
   }
+
+  if (req.user.role !== 'ADMIN') {
+    res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin only.',
+    });
+    return;
+  }
+
   next();
 };
