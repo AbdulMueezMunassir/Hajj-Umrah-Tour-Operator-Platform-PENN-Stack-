@@ -6,6 +6,8 @@ import packageRoutes from './routes/package.routes';
 import bookingRoutes from './routes/booking.routes';  // ← ADD
 import { errorHandler } from './middleware/errorHandler';
 import { seedAdmin } from './utils/seedAdmin';
+import paymentRoutes from './routes/payment.routes';
+
 
 dotenv.config();
 
@@ -28,6 +30,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/bookings', bookingRoutes);  // ← ADD
+app.use('/api/payments', paymentRoutes);
+
 
 // 404 handler
 app.use((req, res) => {
