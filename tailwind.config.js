@@ -1,8 +1,9 @@
-const config = {
+﻿/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -10,9 +11,11 @@ const config = {
         primary: '#00685f',
         'primary-dark': '#004d45',
         'primary-light': '#008378',
+        'primary-fixed': '#89f5e7',
+        'primary-fixed-dim': '#6bd8cb',
         gold: '#d97706',
+        'gold-light': '#f59e0b',
         surface: '#faf8ff',
-        'surface-dim': '#d2d9f4',
         'surface-container': '#eaedff',
         'surface-container-low': '#f2f3ff',
         'surface-container-lowest': '#ffffff',
@@ -24,22 +27,14 @@ const config = {
         'outline-variant': '#bcc9c6',
         tertiary: '#8d4b00',
         'tertiary-fixed': '#ffdcc3',
-        'tertiary-fixed-dim': '#ffb77d',
         secondary: '#216963',
         'secondary-container': '#a8ece5',
       },
       fontFamily: {
-        outfit: ['Outfit', 'sans-serif'],
-        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
-      },
-      borderRadius: {
-        xl: '1.5rem',
-        lg: '1rem',
-        md: '0.75rem',
-        sm: '0.5rem',
+        outfit: ['Outfit', 'system-ui', 'sans-serif'],
+        jakarta: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [],
 };
-export default config;

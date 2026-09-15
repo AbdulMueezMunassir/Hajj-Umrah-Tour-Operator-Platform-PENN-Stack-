@@ -3,20 +3,153 @@
 @tailwind utilities;
 
 :root {
-  --header-height: 80px;
+  --primary: #00685f;
+  --primary-light: #008378;
+  --gold: #d97706;
+  --header-height: 120px;
 }
 
-@layer base {
-  body {
-    @apply bg-surface text-on-surface antialiased;
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #faf8ff;
+  color: #131b2e;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #eaedff;
+}
+::-webkit-scrollbar-thumb {
+  background: #89f5e7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00685f;
+}
+
+/* Utility classes */
+.container-mhk {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .container-mhk {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
-@layer components {
-  .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/80 shadow-lg;
+.glass {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(15, 118, 110, 0.08);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.75rem;
+  background: #00685f;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(0, 104, 95, 0.25);
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: #004d45;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 104, 95, 0.35);
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.75rem;
+  background: #d97706;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+  text-decoration: none;
+}
+
+.btn-gold:hover {
+  background: #b45309;
+  transform: translateY(-1px);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Card hover */
+.card-hover {
+  transition: all 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -8px rgba(13, 148, 136, 0.15);
+}
+
+/* Animations */
+.animate-fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
   }
-  .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark transition-all shadow-md hover:shadow-lg;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
