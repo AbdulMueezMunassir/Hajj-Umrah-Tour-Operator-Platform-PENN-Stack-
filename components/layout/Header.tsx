@@ -55,17 +55,17 @@ export default function Header() {
       </div>
 
       {/* Main Nav */}
-      <div className="container-mhk h-24 flex items-center justify-between gap-4">
+      <div className="container-mhk h-28 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="flex items-center flex-shrink-0">
-          <Image
-            src="/img/logo.png"
-            alt="MHK Travels"
-            width={300}
-            height={150}
-            className="h-20 w-auto object-contain"
-            priority
-          />
+        <Image
+          src="/img/logo.png"
+          alt="MHK Travels"
+          width={260}
+          height={100}
+          className="h-24 w-auto object-contain"
+          priority
+      />
         </Link>
 
         {/* Desktop Nav */}
