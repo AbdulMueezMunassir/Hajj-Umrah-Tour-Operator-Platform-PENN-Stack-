@@ -49,7 +49,7 @@ export default function RootLayout({
       </head>
       <body className="font-jakarta bg-surface text-on-surface antialiased">
         <Header />
-        <main className="pt-[148px] min-h-screen">{children}</main>
+        <main className="pt-[168px] min-h-screen">{children}</main>
         <Footer />
       </body>
     </html>

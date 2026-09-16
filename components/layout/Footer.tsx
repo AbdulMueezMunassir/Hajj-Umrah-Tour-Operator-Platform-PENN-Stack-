@@ -11,9 +11,9 @@ export default function Footer() {
             <Image
               src="/img/logo.png"
               alt="MHK Travels"
-              width={180}
-              height={60}
-              className="h-14 w-auto object-contain"
+              width={220}
+              height={80}
+              className="h-16 w-auto object-contain"
             />
             <p className="text-sm text-on-surface-variant max-w-md">
               Sri Lanka&apos;s trusted partner for spiritual journeys to the
