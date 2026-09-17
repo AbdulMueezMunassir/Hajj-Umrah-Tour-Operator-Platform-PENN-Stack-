@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { User } from '@/types';
 import { authAPI } from '@/lib/api';
 
@@ -8,11 +8,42 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  rememberMe: boolean;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
   loadUser: () => Promise<void>;
+  setRememberMe: (value: boolean) => void;
 }
+
+// Custom storage that respects rememberMe flag
+const customStorage = {
+  getItem: (name: string) => {
+    if (typeof window === 'undefined') return null;
+    const localValue = localStorage.getItem(name);
+    if (localValue) return localValue;
+    return sessionStorage.getItem(name);
+  },
+  setItem: (name: string, value: string) => {
+    if (typeof window === 'undefined') return;
+    const parsed = JSON.parse(value);
+    const rememberMe = parsed?.state?.rememberMe;
+
+    // Store in localStorage if rememberMe, else sessionStorage
+    if (rememberMe) {
+      localStorage.setItem(name, value);
+      sessionStorage.removeItem(name);
+    } else {
+      sessionStorage.setItem(name, value);
+      localStorage.removeItem(name);
+    }
+  },
+  removeItem: (name: string) => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(name);
+    sessionStorage.removeItem(name);
+  },
+};
 
 export const useAuth = create<AuthState>()(
   persist(
@@ -21,14 +52,20 @@ export const useAuth = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      rememberMe: false,
 
-      login: async (email: string, password: string) => {
-        set({ isLoading: true });
+      setRememberMe: (value: boolean) => {
+        set({ rememberMe: value });
+      },
+
+      login: async (email: string, password: string, rememberMe: boolean = false) => {
+        set({ isLoading: true, rememberMe });
         try {
           const response = await authAPI.login({ email, password });
           const { user, token } = response.data.data;
 
           if (typeof window !== 'undefined') {
+            // Store token in localStorage for axios interceptor
             localStorage.setItem('mhk_token', token);
           }
 
@@ -37,11 +74,12 @@ export const useAuth = create<AuthState>()(
             token,
             isAuthenticated: true,
             isLoading: false,
+            rememberMe,
           });
         } catch (error: any) {
           set({ isLoading: false });
           throw new Error(
-            error.response?.data?.message || 'Login failed'
+            error.response?.data?.message || 'Login failed. Please try again.'
           );
         }
       },
@@ -65,7 +103,7 @@ export const useAuth = create<AuthState>()(
         } catch (error: any) {
           set({ isLoading: false });
           throw new Error(
-            error.response?.data?.message || 'Registration failed'
+            error.response?.data?.message || 'Registration failed. Please try again.'
           );
         }
       },
@@ -73,11 +111,14 @@ export const useAuth = create<AuthState>()(
       logout: () => {
         if (typeof window !== 'undefined') {
           localStorage.removeItem('mhk_token');
+          sessionStorage.removeItem('mhk-auth');
+          localStorage.removeItem('mhk-auth');
         }
         set({
           user: null,
           token: null,
           isAuthenticated: false,
+          rememberMe: false,
         });
       },
 
@@ -99,10 +140,12 @@ export const useAuth = create<AuthState>()(
     }),
     {
       name: 'mhk-auth',
+      storage: createJSONStorage(() => customStorage),
       partialize: (state) => ({
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        rememberMe: state.rememberMe,
       }),
     }
   )
