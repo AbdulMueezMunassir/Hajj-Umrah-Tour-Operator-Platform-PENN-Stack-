@@ -63,6 +63,7 @@ export const bookingAPI = {
   get: (id: string) => api.get(`/bookings/${id}`),
   cancel: (id: string, reason?: string) =>
     api.put(`/bookings/${id}/cancel`, { reason }),
+  delete: (id: string) => api.delete(`/bookings/${id}`),
   allBookings: (params?: any) => api.get('/bookings/admin/all', { params }),
   stats: () => api.get('/bookings/admin/stats'),
   updateStatus: (id: string, status: string) =>

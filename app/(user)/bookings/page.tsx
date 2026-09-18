@@ -1,23 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { bookingAPI } from '@/lib/api';
 import { Booking } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeUp, StaggerContainer, StaggerItem } from '@/components/ui/MotionDiv';
 
+
 type TabType = 'all' | 'upcoming' | 'pending' | 'completed' | 'cancelled';
 
-export default function BookingsPage() {
+function BookingsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const justCreated = searchParams.get('created');
+  const justDeleted = searchParams.get('deleted');
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -25,9 +30,11 @@ export default function BookingsPage() {
     }
   }, [authLoading, isAuthenticated, router]);
 
+  // Fetch bookings on mount AND whenever auth/path changes
   useEffect(() => {
     const fetchBookings = async () => {
       if (!isAuthenticated) return;
+      setLoading(true); // Show loading state on every fetch
       try {
         const response = await bookingAPI.myBookings({ limit: 100 });
         setBookings(response.data.data.bookings || []);
@@ -37,7 +44,23 @@ export default function BookingsPage() {
         setLoading(false);
       }
     };
+
     fetchBookings();
+  }, [isAuthenticated, searchParams]); // ← Add searchParams so it re-runs on param change
+
+  // Refetch when user returns to the tab
+  useEffect(() => {
+    const handleFocus = () => {
+      if (isAuthenticated) {
+        bookingAPI
+          .myBookings({ limit: 100 })
+          .then((res) => setBookings(res.data.data.bookings || []))
+          .catch(() => {});
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [isAuthenticated]);
 
   // Filter by tab
@@ -427,10 +450,10 @@ function BookingCard({ booking }: { booking: Booking }) {
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {isPending && booking.bookingStatus === 'PENDING_PAYMENT' && (
                 <Link
-                  href={`/bookings/${booking.id}?pay=advance`}
+                  href={`/bookings/${booking.id}/pay?type=ADVANCE`}
                   className="btn-primary text-xs px-4 py-2"
                 >
                   Pay Advance
@@ -442,10 +465,54 @@ function BookingCard({ booking }: { booking: Booking }) {
               >
                 View Details
               </Link>
+
+              {(booking.bookingStatus === 'CANCELLED' ||
+                booking.bookingStatus === 'PENDING_PAYMENT') && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (
+                      confirm(
+                        `Delete booking ${booking.bookingRef}? This cannot be undone.`
+                      )
+                    ) {
+                      // TODO: implement delete + refresh
+                      bookingAPI.delete(booking.id).then(() => window.location.reload());
+                    }
+                  }}
+                  className="px-3 py-2 rounded-xl bg-error-container text-on-error-container hover:bg-error hover:text-white text-xs font-semibold transition-colors flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                  Delete
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// ==========================================
+// Default export with Suspense boundary
+// ==========================================
+export default function BookingsPage() {
+  return (
+    <Suspense fallback={<BookingsSkeleton />}>
+      <BookingsContent />
+    </Suspense>
+  );
+}
+
+function BookingsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="animate-pulse space-y-4">
+        <div className="h-24 bg-surface-container rounded-2xl" />
+        <div className="h-16 bg-surface-container rounded-2xl" />
+        <div className="h-64 bg-surface-container rounded-2xl" />
+      </div>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   getMyBookings,
   getBooking,
   cancelBooking,
+  deleteBooking,
   getAllBookings,
   updateBookingStatus,
   getBookingStats,
@@ -42,6 +43,14 @@ router.put(
   cancelBookingValidation,
   validate,
   cancelBooking
+);
+
+// Delete booking (only cancelled or pending-payment)
+router.delete(
+  '/:id',
+  bookingIdValidation,
+  validate,
+  deleteBooking
 );
 
 // ==========================================
