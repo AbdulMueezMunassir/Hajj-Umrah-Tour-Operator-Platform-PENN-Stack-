@@ -554,3 +554,88 @@ export const getBookingStats = async (
     });
   }
 };
+
+// ==========================================
+// DELETE BOOKING (User — only cancelled or pending)
+// ==========================================
+export const deleteBooking = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: 'Not authenticated' });
+      return;
+    }
+
+    const { id } = req.params;
+
+    const booking = await prisma.booking.findUnique({
+      where: { id },
+      include: {
+        payments: true,
+      },
+    });
+
+    if (!booking) {
+      res.status(404).json({
+        success: false,
+        message: 'Booking not found',
+      });
+      return;
+    }
+
+    // Check ownership (admins can delete any)
+    if (
+      booking.userId !== req.user.userId &&
+      req.user.role !== 'ADMIN'
+    ) {
+      res.status(403).json({
+        success: false,
+        message: 'Access denied',
+      });
+      return;
+    }
+
+    // Safety: Users can only delete CANCELLED or PENDING_PAYMENT bookings
+    const allowedStatuses = ['CANCELLED', 'PENDING_PAYMENT'];
+    if (
+      req.user.role !== 'ADMIN' &&
+      !allowedStatuses.includes(booking.bookingStatus)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: `Cannot delete a ${booking.bookingStatus.toLowerCase()} booking. Cancel it first, or contact support.`,
+      });
+      return;
+    }
+
+    // If there are successful payments, block deletion
+    const hasPaidPayments = booking.payments.some(
+      (p) => p.status === 'PAID'
+    );
+    if (hasPaidPayments && req.user.role !== 'ADMIN') {
+      res.status(400).json({
+        success: false,
+        message:
+          'Cannot delete a booking with completed payments. Please contact support for refund.',
+      });
+      return;
+    }
+
+    // Delete (cascade will remove travellers and payments via Prisma relations)
+    await prisma.booking.delete({ where: { id } });
+
+    res.status(200).json({
+      success: true,
+      message: 'Booking deleted successfully',
+    });
+  } catch (error: any) {
+    console.error('Delete booking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete booking',
+      error: error.message,
+    });
+  }
+};
