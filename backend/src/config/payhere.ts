@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const PAYHERE_CONFIG = {
-  merchantId: process.env.PAYHERE_MERCHANT_ID || '1238014',
+  merchantId: process.env.PAYHERE_MERCHANT_ID || '1211149',
   merchantSecret: process.env.PAYHERE_MERCHANT_SECRET || '',
   environment: process.env.PAYHERE_ENVIRONMENT || 'sandbox',
   currency: process.env.PAYHERE_CURRENCY || 'LKR',
