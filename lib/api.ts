@@ -54,7 +54,7 @@ export const packageAPI = {
   delete: (id: string) => api.delete(`/packages/${id}`),
   toggleStatus: (id: string, status: string) =>
     api.patch(`/packages/${id}/status`, { status }),
-  stats: () => api.get('/packages/admin/stats'),
+  stats: () => api.get('/packages/admin/stats'),  // ← Check this exists
 };
 
 export const bookingAPI = {
@@ -65,7 +65,7 @@ export const bookingAPI = {
     api.put(`/bookings/${id}/cancel`, { reason }),
   delete: (id: string) => api.delete(`/bookings/${id}`),
   allBookings: (params?: any) => api.get('/bookings/admin/all', { params }),
-  stats: () => api.get('/bookings/admin/stats'),
+  stats: () => api.get('/bookings/admin/stats'),  // ← Check this exists
   updateStatus: (id: string, status: string) =>
     api.put(`/bookings/admin/${id}/status`, { status }),
 };
@@ -76,7 +76,7 @@ export const paymentAPI = {
   get: (id: string) => api.get(`/payments/${id}`),
   verify: (bookingId: string) => api.get(`/payments/verify/${bookingId}`),
   manualConfirm: (data: any) => api.post('/payments/manual-confirm', data),
-  stats: () => api.get('/payments/admin/stats'),
+  stats: () => api.get('/payments/admin/stats'),  // ← Check this exists
 };
 
 export default api;
