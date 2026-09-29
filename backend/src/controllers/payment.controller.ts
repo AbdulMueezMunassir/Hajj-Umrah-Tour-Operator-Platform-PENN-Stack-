@@ -507,3 +507,96 @@ export const getPaymentStats = async (
     });
   }
 };
+
+// ==========================================
+// GET ALL PAYMENTS (Admin)
+// ==========================================
+export const getAllPayments = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const {
+      page = 1,
+      limit = 50,
+      status,
+      paymentType,
+      search,
+      gateway,
+    } = req.query as any;
+
+    const where: any = {};
+
+    if (status) where.status = status;
+    if (paymentType) where.paymentType = paymentType;
+    if (gateway) where.gateway = gateway;
+
+    if (search) {
+      where.OR = [
+        { transactionId: { contains: search, mode: 'insensitive' } },
+        { booking: { bookingRef: { contains: search, mode: 'insensitive' } } },
+        { user: { email: { contains: search, mode: 'insensitive' } } },
+        { user: { firstName: { contains: search, mode: 'insensitive' } } },
+        { user: { lastName: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
+
+    const [payments, total] = await Promise.all([
+      prisma.payment.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              phone: true,
+            },
+          },
+          booking: {
+            select: {
+              id: true,
+              bookingRef: true,
+              totalAmount: true,
+              bookingStatus: true,
+              package: {
+                select: {
+                  name: true,
+                  type: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.payment.count({ where }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        payments,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
+      },
+    });
+  } catch (error: any) {
+    console.error('Get all payments error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch payments',
+      error: error.message,
+    });
+  }
+};
