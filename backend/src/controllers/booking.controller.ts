@@ -158,30 +158,36 @@ export const getMyBookings = async (
 
     const total = await prisma.booking.count({ where });
 
-    const bookings = await prisma.booking.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        package: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            departureCity: true,
-            travelDate: true,
-            returnDate: true,
-            duration: true,
-            posterUrl: true,
-          },
-        },
-        travellersData: true,
-        payments: {
-          orderBy: { createdAt: 'desc' },
-        },
-      },
-    });
+   const bookings = await prisma.booking.findMany({
+  where,
+  skip,
+  take,
+  orderBy: { createdAt: 'desc' },
+  include: {
+  user: {
+    select: {
+      id: true,
+      email: true,
+      firstName: true,
+      lastName: true,
+      phone: true,
+    },
+  },
+  package: {
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      travelDate: true,
+      returnDate: true,
+      departureCity: true,
+      posterUrl: true,
+    },
+  },
+  travellersData: true,
+  payments: { orderBy: { createdAt: 'desc' } },
+},
+});
 
     res.status(200).json({
       success: true,
