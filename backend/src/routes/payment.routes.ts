@@ -7,6 +7,7 @@ import {
   getPayment,
   manualConfirm,
   getPaymentStats,
+  getAllPayments,  // ← Add this
 } from '../controllers/payment.controller';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
 import { validate } from '../middleware/validation';
@@ -49,6 +50,14 @@ router.get(
 // ==========================================
 // ADMIN ROUTES
 // ==========================================
+// Get all payments (admin)
+router.get(
+  '/admin/all',
+  authMiddleware,
+  adminMiddleware,
+  getAllPayments
+);
+
 router.get('/admin/stats', authMiddleware, adminMiddleware, getPaymentStats);
 
 router.post(

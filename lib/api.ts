@@ -76,7 +76,8 @@ export const paymentAPI = {
   get: (id: string) => api.get(`/payments/${id}`),
   verify: (bookingId: string) => api.get(`/payments/verify/${bookingId}`),
   manualConfirm: (data: any) => api.post('/payments/manual-confirm', data),
-  stats: () => api.get('/payments/admin/stats'),  // ← Check this exists
+  stats: () => api.get('/payments/admin/stats'),
+  allPayments: (params?: any) => api.get('/payments/admin/all', { params }),  // ← Add this
 };
 
 export default api;
