@@ -7,6 +7,7 @@ import bookingRoutes from './routes/booking.routes';  // ← ADD
 import { errorHandler } from './middleware/errorHandler';
 import { seedAdmin } from './utils/seedAdmin';
 import paymentRoutes from './routes/payment.routes';
+import userRoutes from './routes/user.routes';
 
 
 dotenv.config();
@@ -16,6 +17,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api/users', userRoutes);
+
 
 // Health check
 app.get('/api/health', (req, res) => {
