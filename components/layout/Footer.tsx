@@ -84,6 +84,7 @@ export default function Footer() {
                   About Us
                 </Link>
               </li>
+              <li><Link href="/faq">FAQ</Link></li>
               <li>
                 <Link href="/contact" className="hover:text-primary transition">
                   Contact
@@ -155,6 +156,7 @@ export default function Footer() {
             <Link href="/privacy" className="hover:text-primary transition">
               Privacy
             </Link>
+            <Link href="/faq">FAQ</Link>
             <Link href="/terms" className="hover:text-primary transition">
               Terms
             </Link>

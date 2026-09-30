@@ -12,13 +12,14 @@ export default function Header() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/umrah', label: 'Umrah' },
-    { href: '/hajj', label: 'Hajj' },
-    { href: '/about', label: 'About' },
-    { href: '/services', label: 'Services' },
-    { href: '/contact', label: 'Contact' },
-  ];
+  { href: '/', label: 'Home' },
+  { href: '/umrah', label: 'Umrah' },
+  { href: '/hajj', label: 'Hajj' },
+  { href: '/about', label: 'About' },
+  { href: '/services', label: 'Services' },
+  { href: '/faq', label: 'FAQ' },
+  { href: '/contact', label: 'Contact' },
+];
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
