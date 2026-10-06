@@ -224,7 +224,7 @@ export default function AdminReviewsPage() {
                 {/* Package & Rating */}
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <Link
-                    href="#"
+                    href="/admin/packages"
                     className="text-[10px] font-bold text-tertiary bg-tertiary-fixed/40 px-2 py-0.5 rounded hover:underline"
                   >
                     {review.packageName}

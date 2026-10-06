@@ -132,6 +132,20 @@ export interface Payment {
   createdAt: string;
   updatedAt: string;
   booking?: Partial<Booking>;
+  user?: Partial<User>;
+}
+
+// ==========================================
+// NOTIFICATION
+// ==========================================
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  read: boolean;
+  type: 'BOOKING' | 'PAYMENT' | 'SYSTEM' | string;
+  createdAt: string;
 }
 
 // ==========================================

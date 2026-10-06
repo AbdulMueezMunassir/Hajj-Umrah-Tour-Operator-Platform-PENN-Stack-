@@ -26,7 +26,7 @@ export default function UpcomingPage() {
       if (!isAuthenticated) return;
       try {
         const response = await bookingAPI.myBookings({ limit: 100 });
-        const all = response.data.data.bookings || [];
+        const all: Booking[] = response.data.data.bookings || [];
 
         // Filter upcoming only
         const now = new Date();

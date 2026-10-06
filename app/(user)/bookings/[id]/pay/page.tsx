@@ -32,6 +32,8 @@ function PaymentContent() {
   const [loading, setLoading] = useState(true);
   const [initiating, setInitiating] = useState(false);
   const [error, setError] = useState('');
+  const [mockEnabled, setMockEnabled] = useState(false);
+  const [mockLoading, setMockLoading] = useState(false);
   const [checkout, setCheckout] = useState<{
     checkoutUrl: string;
     checkoutData: any;
@@ -59,6 +61,37 @@ function PaymentContent() {
     };
     fetchBooking();
   }, [isAuthenticated, params.id]);
+
+    // Check whether the mock (test) gateway is enabled on the backend
+  useEffect(() => {
+    paymentAPI
+      .config()
+      .then((res) => setMockEnabled(!!res.data.data.mockEnabled))
+      .catch(() => setMockEnabled(false));
+  }, []);
+
+  // Mock payment (testing only)
+  const handleMockPayment = async (outcome: 'success' | 'failed') => {
+    if (!booking) return;
+    setMockLoading(true);
+    setError('');
+
+    try {
+      await paymentAPI.mock({
+        bookingId: booking.id,
+        paymentType,
+        outcome,
+      });
+      router.push(
+        outcome === 'success'
+          ? `/bookings/${booking.id}/pay/success`
+          : `/bookings/${booking.id}/pay/failed`
+      );
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Mock payment failed');
+      setMockLoading(false);
+    }
+  };
 
   // Initiate payment
   const handleInitiatePayment = async () => {
@@ -374,9 +407,43 @@ function PaymentContent() {
                     Pay LKR {paymentAmount.toLocaleString()}
                   </>
                 )}
-              </motion.button>
+                            </motion.button>
             </div>
           </FadeUp>
+
+          {/* Mock gateway (testing only) */}
+          {mockEnabled && (
+            <FadeUp delay={0.35}>
+              <div className="p-4 rounded-2xl border border-dashed border-tertiary/40 bg-tertiary-fixed/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="material-symbols-outlined text-tertiary text-lg">
+                    science
+                  </span>
+                  <p className="text-xs font-bold text-tertiary uppercase tracking-wider">
+                    Test Mode - Mock Payment
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => handleMockPayment('success')}
+                    disabled={mockLoading || initiating || !!checkout}
+                    className="flex-1 py-3 rounded-xl bg-tertiary hover:opacity-90 text-white font-bold text-sm transition-all disabled:opacity-60"
+                  >
+                    {mockLoading
+                      ? 'Processing...'
+                      : `Mock Pay LKR ${paymentAmount.toLocaleString()}`}
+                  </button>
+                  <button
+                    onClick={() => handleMockPayment('failed')}
+                    disabled={mockLoading || initiating || !!checkout}
+                    className="flex-1 py-3 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-sm transition-colors disabled:opacity-60"
+                  >
+                    Simulate Failure
+                  </button>
+                </div>
+              </div>
+            </FadeUp>
+          )}
         </div>
 
         {/* Right — Summary */}

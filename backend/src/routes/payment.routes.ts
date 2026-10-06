@@ -7,7 +7,9 @@ import {
   getPayment,
   manualConfirm,
   getPaymentStats,
-  getAllPayments,  // ← Add this
+  getAllPayments,
+  getPaymentConfig,
+  mockPayment,
 } from '../controllers/payment.controller';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
 import { validate } from '../middleware/validation';
@@ -25,6 +27,7 @@ const router = Router();
 // PUBLIC ROUTES
 // ==========================================
 router.post('/notify', payhereNotify);
+router.get('/config', getPaymentConfig);
 
 // ==========================================
 // USER ROUTES (Protected)
@@ -35,6 +38,15 @@ router.post(
   initiatePaymentValidation,
   validate,
   initiatePayment
+);
+
+// Mock gateway (testing only - enabled with MOCK_PAYMENTS=true)
+router.post(
+  '/mock',
+  authMiddleware,
+  initiatePaymentValidation,
+  validate,
+  mockPayment
 );
 
 router.get('/', authMiddleware, listPaymentsValidation, validate, getMyPayments);

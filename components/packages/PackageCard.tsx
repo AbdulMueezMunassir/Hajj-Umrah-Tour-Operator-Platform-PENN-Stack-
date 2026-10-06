@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Package } from '@/types';
@@ -11,6 +12,7 @@ interface PackageCardProps {
 }
 
 export default function PackageCard({ pkg, index = 0 }: PackageCardProps) {
+  const [imgFailed, setImgFailed] = useState(false);
   const advanceAmount =
     pkg.advanceAmount ||
     Math.round((pkg.totalPrice * pkg.advancePercent) / 100);
@@ -40,10 +42,13 @@ export default function PackageCard({ pkg, index = 0 }: PackageCardProps) {
       <Link href={`/package/${pkg.id}`}>
         {/* Image */}
         <div className="relative h-52 overflow-hidden">
-          {pkg.posterUrl ? (
+          {pkg.posterUrl && !imgFailed ? (
             <motion.img
               src={pkg.posterUrl}
               alt={pkg.name}
+              onError={() => setImgFailed(true)}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.5 }}

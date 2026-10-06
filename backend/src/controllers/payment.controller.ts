@@ -600,3 +600,150 @@ export const getAllPayments = async (
     });
   }
 };
+
+// ==========================================
+// PAYMENT CONFIG (Public) - tells the frontend if mock payments are on
+// ==========================================
+export const getPaymentConfig = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  res.status(200).json({
+    success: true,
+    data: { mockEnabled: process.env.MOCK_PAYMENTS === 'true' },
+  });
+};
+
+// ==========================================
+// MOCK PAYMENT (Testing only - requires MOCK_PAYMENTS=true)
+// ==========================================
+export const mockPayment = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    if (process.env.MOCK_PAYMENTS !== 'true') {
+      res
+        .status(403)
+        .json({ success: false, message: 'Mock payments are disabled.' });
+      return;
+    }
+
+    if (!req.user) {
+      res.status(401).json({ success: false, message: 'Not authenticated' });
+      return;
+    }
+
+    const { bookingId, paymentType, outcome } = req.body;
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+    });
+
+    if (!booking) {
+      res.status(404).json({ success: false, message: 'Booking not found' });
+      return;
+    }
+
+    if (booking.userId !== req.user.userId) {
+      res.status(403).json({ success: false, message: 'Access denied' });
+      return;
+    }
+
+    if (
+      booking.bookingStatus === 'CANCELLED' ||
+      booking.bookingStatus === 'COMPLETED'
+    ) {
+      res.status(400).json({
+        success: false,
+        message: `Cannot pay for a ${booking.bookingStatus.toLowerCase()} booking`,
+      });
+      return;
+    }
+
+    let amount = 0;
+
+    if (paymentType === 'ADVANCE') {
+      if (booking.bookingStatus !== 'PENDING_PAYMENT') {
+        res.status(400).json({
+          success: false,
+          message: 'Advance already paid for this booking',
+        });
+        return;
+      }
+      amount = booking.advancePaid;
+    } else if (paymentType === 'BALANCE') {
+      if (booking.bookingStatus === 'PENDING_PAYMENT') {
+        res
+          .status(400)
+          .json({ success: false, message: 'Please pay the advance first' });
+        return;
+      }
+      if (booking.balanceDue <= 0) {
+        res.status(400).json({ success: false, message: 'No balance due' });
+        return;
+      }
+      amount = booking.balanceDue;
+    } else {
+      res
+        .status(400)
+        .json({ success: false, message: 'Invalid payment type' });
+      return;
+    }
+
+    const transactionId = `MOCK-${Date.now()}`;
+
+    if (outcome === 'failed') {
+      await prisma.payment.create({
+        data: {
+          bookingId,
+          userId: req.user.userId,
+          amount,
+          paymentType,
+          gateway: 'Mock',
+          transactionId,
+          status: 'FAILED',
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Mock payment failed (simulated)',
+        data: { status: 'FAILED' },
+      });
+      return;
+    }
+
+    const payment = await prisma.payment.create({
+      data: {
+        bookingId,
+        userId: req.user.userId,
+        amount,
+        paymentType,
+        gateway: 'Mock',
+        transactionId,
+        status: 'PAID',
+      },
+    });
+
+    const updatedBooking = await updateBookingAfterPayment(
+      bookingId,
+      paymentType,
+      amount,
+      transactionId
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Mock payment successful',
+      data: { status: 'PAID', payment, booking: updatedBooking },
+    });
+  } catch (error: any) {
+    console.error('Mock payment error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Mock payment failed',
+      error: error.message,
+    });
+  }
+};

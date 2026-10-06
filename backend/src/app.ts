@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import compression from 'compression';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import packageRoutes from './routes/package.routes';
@@ -8,6 +9,8 @@ import { errorHandler } from './middleware/errorHandler';
 import { seedAdmin } from './utils/seedAdmin';
 import paymentRoutes from './routes/payment.routes';
 import userRoutes from './routes/user.routes';
+import notificationRoutes from './routes/notification.routes';
+import contactRoutes from './routes/contact.routes';
 
 
 dotenv.config();
@@ -15,6 +18,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
@@ -34,6 +38,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/packages', packageRoutes);
 app.use('/api/bookings', bookingRoutes);  // ← ADD
 app.use('/api/payments', paymentRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/contact', contactRoutes);
 
 
 // 404 handler

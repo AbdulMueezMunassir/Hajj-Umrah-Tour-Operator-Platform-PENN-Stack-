@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -21,15 +21,8 @@ const ADMIN_NAV = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showLogout, setShowLogout] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
 
   const isActive = (href: string) => pathname.startsWith(href);
 
@@ -97,37 +90,11 @@ export default function AdminSidebar() {
       <div className="bg-white/70 backdrop-blur-xl border border-white/90 rounded-2xl p-1.5 shadow-lg space-y-0.5">
         <Link
           href="/"
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all"
-          style={{ color: 'var(--on-surface-variant)' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--tertiary)';
-            e.currentTarget.style.color = '#ffffff';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = 'var(--on-surface-variant)';
-          }}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all text-on-surface-variant hover:bg-tertiary hover:text-white"
         >
           <span className="material-symbols-outlined text-lg">home</span>
           <span>Public Site</span>
         </Link>
-
-        <button
-          onClick={() => setShowLogout(true)}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all text-left"
-          style={{ color: '#ba1a1a' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#ba1a1a';
-            e.currentTarget.style.color = '#ffffff';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            e.currentTarget.style.color = '#ba1a1a';
-          }}
-        >
-          <span className="material-symbols-outlined text-lg">logout</span>
-          <span>Logout</span>
-        </button>
       </div>
     </div>
   );
@@ -179,51 +146,6 @@ export default function AdminSidebar() {
               <SidebarContent />
             </motion.aside>
           </>
-        )}
-      </AnimatePresence>
-
-      {/* Logout Modal */}
-      <AnimatePresence>
-        {showLogout && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowLogout(false)}
-            className="fixed inset-0 z-[100] bg-inverse-surface/60 backdrop-blur-sm flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-error-container text-on-error-container flex items-center justify-center mx-auto mb-4">
-                <span className="material-symbols-outlined text-2xl">logout</span>
-              </div>
-              <h3 className="text-xl font-bold text-center text-on-surface">
-                Confirm Logout
-              </h3>
-              <p className="text-sm text-on-surface-variant text-center mt-1">
-                Are you sure you want to logout from the admin panel?
-              </p>
-              <div className="flex gap-2 mt-6">
-                <button
-                  onClick={() => setShowLogout(false)}
-                  className="flex-1 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-sm transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex-1 py-2.5 rounded-xl bg-error hover:bg-red-700 text-white font-bold text-sm transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
         )}
       </AnimatePresence>
     </>

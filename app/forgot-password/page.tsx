@@ -18,9 +18,7 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement forgot password endpoint
-      // For now, simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await api.post('/auth/forgot-password', { email });
       setIsSuccess(true);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to send reset link');

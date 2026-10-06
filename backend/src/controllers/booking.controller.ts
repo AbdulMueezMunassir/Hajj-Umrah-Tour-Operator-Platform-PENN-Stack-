@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
+import { createNotification } from '../services/notification.service';
 import { AuthRequest } from '../middleware/auth';
 import {
   generateBookingRef,
@@ -105,6 +106,13 @@ export const createBooking = async (
         travellersData: true,
       },
     });
+
+    await createNotification(
+      req.user.userId,
+      'Booking Created',
+      `Your booking ${booking.bookingRef} for ${pkg.name} has been created. Please complete the advance payment to confirm your seats.`,
+      'BOOKING'
+    );
 
     res.status(201).json({
       success: true,
@@ -480,6 +488,13 @@ export const updateBookingStatus = async (
         package: { select: { name: true, type: true } },
       },
     });
+
+    await createNotification(
+      booking.userId,
+      'Booking Status Updated',
+      `Your booking ${booking.bookingRef} status is now ${String(status).replace(/_/g, ' ')}.`,
+      'BOOKING'
+    );
 
     res.status(200).json({
       success: true,

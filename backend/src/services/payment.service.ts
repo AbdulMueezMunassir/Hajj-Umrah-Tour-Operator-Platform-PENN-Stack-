@@ -1,5 +1,6 @@
 import prisma from '../config/database';
 import { generatePaymentHash, PAYHERE_CONFIG } from '../config/payhere';
+import { createNotification } from './notification.service';
 
 export const createPaymentRecord = async (
   bookingId: string,
@@ -92,7 +93,7 @@ export const updateBookingAfterPayment = async (
     };
   }
 
-  return await prisma.booking.update({
+    const updatedBooking = await prisma.booking.update({
     where: { id: bookingId },
     data: updateData,
     include: {
@@ -100,6 +101,17 @@ export const updateBookingAfterPayment = async (
       user: { select: { email: true, firstName: true, lastName: true } },
     },
   });
+
+  await createNotification(
+    booking.userId,
+    'Payment Received',
+    paymentType === 'ADVANCE'
+      ? `Your advance payment for booking ${booking.bookingRef} was received. Your seats are reserved.`
+      : `Your balance payment for booking ${booking.bookingRef} was received. Your booking is confirmed.`,
+    'PAYMENT'
+  );
+
+  return updatedBooking;
 };
 
 export const generateOrderId = (

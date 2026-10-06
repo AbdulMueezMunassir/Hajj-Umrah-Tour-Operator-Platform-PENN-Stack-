@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import api from '@/lib/api';
 import { FadeUp, StaggerContainer, StaggerItem } from '@/components/ui/MotionDiv';
 
 export default function ContactPage() {
@@ -14,16 +15,24 @@ export default function ContactPage() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSending(true);
+        setSending(true);
+    setError('');
 
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 1200));
-
-    setSubmitted(true);
-    setSending(false);
+    try {
+      await api.post('/contact', form);
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message ||
+          'Failed to send your message. Please try again.'
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   const contactMethods = [
@@ -233,6 +242,12 @@ export default function ContactPage() {
                           Fill in the form and we&apos;ll get back to you
                         </p>
                       </div>
+
+                                            {error && (
+                        <div className="mb-4 p-3 rounded-xl bg-error-container text-on-error-container text-sm">
+                          {error}
+                        </div>
+                      )}
 
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -4,11 +4,19 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const router = useRouter();
+  const [showLogout, setShowLogout] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    setShowLogout(false);
+    router.push('/');
+  };
   const pathname = usePathname();
 
   const navLinks = [
@@ -26,7 +34,8 @@ export default function Header() {
     return pathname.startsWith(href);
   };
 
-  return (
+    return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-white/80 shadow-sm">
       {/* Top Bar */}
       <div className="bg-primary text-white text-[10px] font-semibold py-1.5 px-4">
@@ -106,14 +115,7 @@ export default function Header() {
                   </span>
                 </div>
               </Link>
-              <button
-                onClick={logout}
-                className="hidden md:flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium text-on-surface-variant hover:text-error hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-base">
-                  logout
-                </span>
-              </button>
+              
             </>
           ) : (
             <>
@@ -138,6 +140,19 @@ export default function Header() {
             </span>
             <span className="hidden sm:inline">Book Now</span>
           </Link>
+
+          {isAuthenticated && user && (
+            <button
+              onClick={() => setShowLogout(true)}
+              aria-label="Logout"
+              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-error border border-error/30 hover:bg-error hover:text-white transition-colors"
+            >
+              <span className="material-symbols-outlined text-base">
+                logout
+              </span>
+              <span className="hidden xl:inline">Logout</span>
+            </button>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -213,6 +228,44 @@ export default function Header() {
           </nav>
         </div>
       )}
-    </header>
+        </header>
+
+    {/* Logout Confirm Modal */}
+    {showLogout && (
+      <div
+        onClick={() => setShowLogout(false)}
+        className="fixed inset-0 z-[100] bg-inverse-surface/60 backdrop-blur-sm flex items-center justify-center p-4"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-error-container text-on-error-container flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-2xl">logout</span>
+          </div>
+          <h3 className="text-xl font-bold text-center text-on-surface">
+            Confirm Logout
+          </h3>
+          <p className="text-sm text-on-surface-variant text-center mt-1">
+            Are you sure you want to logout?
+          </p>
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => setShowLogout(false)}
+              className="flex-1 py-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-semibold text-sm transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex-1 py-2.5 rounded-xl bg-error hover:bg-red-700 text-white font-bold text-sm transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

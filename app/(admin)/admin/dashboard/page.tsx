@@ -22,6 +22,8 @@ export default function AdminDashboard() {
       pending: 0,
       failed: 0,
       refunded: 0,
+      advanceCount: 0,
+      balanceCount: 0,
       totalCollected: 0,
     },
     revenue: {
@@ -66,6 +68,8 @@ export default function AdminDashboard() {
           pending: 0,
           failed: 0,
           refunded: 0,
+          advanceCount: 0,
+          balanceCount: 0,
           totalCollected: 0,
         },
         revenue: {

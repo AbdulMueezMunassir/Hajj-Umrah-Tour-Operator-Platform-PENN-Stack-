@@ -28,21 +28,25 @@ export default function Footer() {
             </div>
             <div className="flex gap-2">
               <a
-                href="#"
+                href="https://wa.me/94776290290"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="WhatsApp"
                 className="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition"
               >
                 <span className="material-symbols-outlined text-lg">chat</span>
               </a>
               <a
-                href="#"
+                href="mailto:info@mhktravels.com"
                 aria-label="Email"
                 className="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition"
               >
                 <span className="material-symbols-outlined text-lg">mail</span>
               </a>
               <a
-                href="#"
+                href="https://maps.google.com/?q=Beruwala,Sri+Lanka"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Location"
                 className="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition"
               >
@@ -51,7 +55,7 @@ export default function Footer() {
                 </span>
               </a>
               <a
-                href="#"
+                href="tel:+94776290290"
                 aria-label="Call"
                 className="w-9 h-9 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition"
               >
