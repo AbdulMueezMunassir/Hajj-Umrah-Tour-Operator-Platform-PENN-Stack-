@@ -661,9 +661,3 @@ MRCA Registered Hajj Tour Operator No: H-248
 
 ---
 
-## 🙏 Acknowledgments
-
-- Built with ❤️ for Sri Lankan pilgrims
-- Powered by the PENN Stack
-- Payment processing by [PayHere](https://www.payhere.lk) (CBSL approved)
-- UI/UX inspired by modern glassmorphism design patterns
